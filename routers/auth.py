@@ -1,3 +1,6 @@
+import os
+
+from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse
@@ -15,14 +18,17 @@ from schemas.user import CreateUser
 router = APIRouter(tags=["Authentication and Authorization"])
 
 auth = JWTBearer(jwks)
+env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
+load_dotenv(env_path)
+REDIRECT_URI = os.environ.get("REDIRECT_URI")
 
 
 @router.post("/auth/sign-in")
-async def login(code: str, redirect_uri: str, db: Session = Depends(get_db)):
+async def login(code: str, db: Session = Depends(get_db)):
     """
     Function that signs in a user and returns a token
     """
-    token = auth_with_code(code, redirect_uri)
+    token = auth_with_code(code, REDIRECT_URI)
     if token is None:
         raise HTTPException(status_code=401, detail="Error loging in...")
     else:

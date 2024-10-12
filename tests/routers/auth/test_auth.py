@@ -1,10 +1,18 @@
+import os
+
 import pytest
+from dotenv import load_dotenv
 from fastapi.testclient import TestClient
 from unittest.mock import patch, MagicMock
 from sqlalchemy.orm import Session
 from db.database import get_db
 from main import app
 from schemas.user import CreateUser
+
+
+env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
+load_dotenv(env_path)
+REDIRECT_URI = os.environ.get("REDIRECT_URI")
 
 client = TestClient(app)
 
@@ -38,10 +46,10 @@ def reset_mock_db(mock_db):
 @patch("routers.auth.auth_with_code", return_value=None)
 def test_unsuccessful_login_with_invalid_credentials(mock_auth_with_code, mock_user_info_with_token, mock_save_user,
                                                      mock_db):
-    response = client.post("/auth/sign-in?code=invalid_code&redirect_uri=invalid_uri")
+    response = client.post("/auth/sign-in?code=invalid_code")
 
     assert response.status_code == 401
-    mock_auth_with_code.assert_called_once_with("invalid_code", "invalid_uri")
+    mock_auth_with_code.assert_called_once_with("invalid_code", REDIRECT_URI)
     assert mock_user_info_with_token.call_count == 0
     assert mock_db.query.call_count == 0
     assert mock_save_user.call_count == 0
@@ -54,11 +62,11 @@ def test_successful_login_with_valid_credentials_found_username(mock_auth_with_c
                                                                 mock_save_user, mock_db):
     mock_db.query.return_value.filter.return_value.first.side_effect = [True, False]
 
-    response = client.post("/auth/sign-in?code=valid_code&redirect_uri=valid_uri")
+    response = client.post("/auth/sign-in?code=valid_code")
 
     assert response.status_code == 200
     assert response.json() == {"token": "valid_token"}
-    mock_auth_with_code.assert_called_once_with("valid_code", "valid_uri")
+    mock_auth_with_code.assert_called_once_with("valid_code", REDIRECT_URI)
     mock_user_info_with_token.assert_called_once_with("valid_token")
     assert mock_db.query.call_count == 1
     assert mock_save_user.call_count == 0
@@ -71,11 +79,11 @@ def test_successful_login_with_valid_credentials_found_email(mock_auth_with_code
                                                              mock_save_user, mock_db):
     mock_db.query.return_value.filter.return_value.first.side_effect = [False, True]
 
-    response = client.post("/auth/sign-in?code=valid_code&redirect_uri=valid_uri")
+    response = client.post("/auth/sign-in?code=valid_code")
 
     assert response.status_code == 200
     assert response.json() == {"token": "valid_token"}
-    mock_auth_with_code.assert_called_once_with("valid_code", "valid_uri")
+    mock_auth_with_code.assert_called_once_with("valid_code", REDIRECT_URI)
     mock_user_info_with_token.assert_called_once_with("valid_token")
     assert mock_db.query.call_count == 2
     assert mock_save_user.call_count == 0
@@ -88,11 +96,11 @@ def test_successful_login_with_valid_credentials_new_user(mock_auth_with_code, m
                                                           mock_save_user, mock_db):
     mock_db.query.return_value.filter.return_value.first.side_effect = [False, False]
 
-    response = client.post("/auth/sign-in?code=valid_code&redirect_uri=valid_uri")
+    response = client.post("/auth/sign-in?code=valid_code")
 
     assert response.status_code == 200
     assert response.json() == {"token": "valid_token"}
-    mock_auth_with_code.assert_called_once_with("valid_code", "valid_uri")
+    mock_auth_with_code.assert_called_once_with("valid_code", REDIRECT_URI)
     mock_user_info_with_token.assert_called_once_with("valid_token")
     assert mock_db.query.call_count == 2
     mock_save_user.assert_called_once_with(CreateUser(
