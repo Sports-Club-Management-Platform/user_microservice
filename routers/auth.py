@@ -24,7 +24,7 @@ async def login(code: str, redirect_uri: str, db: Session = Depends(get_db)):
     """
     token = auth_with_code(code, redirect_uri)
     if token is None:
-        raise HTTPException(status_code=404, detail="Error loging in...")
+        raise HTTPException(status_code=401, detail="Error loging in...")
     else:
         user_info = user_info_with_token(token)
 
