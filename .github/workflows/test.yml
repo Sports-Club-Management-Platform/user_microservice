@@ -1,0 +1,47 @@
+name: Test
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  sonarcloud:
+    name: SonarCloud
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Setup poetry
+        run: |
+          pip install --upgrade pip setuptools
+          pip install poetry
+      - name: Install tox and any other packages
+        run: poetry install --no-interaction
+      - name: Setup docker
+        run: docker compose -f test.compose.yml up -d
+      - name: Run tox
+        run: poetry run tox -e coverage
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_SCANNER_OPTS: -Dsonar.python.coverage.reportPaths=coverage.xml
+          AWS_REGION: "eu-north-1"
+          USER_POOL_ID: "eu-north-1_yl0s2JiPS"
+          COGNITO_USER_CLIENT_ID: "4ejoc1sludu6oio9tmgrvcjb3t"
+          COGNITO_USER_CLIENT_SECRET: ${{ secrets.COGNITO_USER_CLIENT_SECRET }}
+          COGNITO_TOKEN_ENDPOINT: "https://703671939478-gap-es.auth.eu-north-1.amazoncognito.com/oauth2/token"
+          MYSQL_ROOT_PASSWORD: "123456"
+          MYSQL_DATABASE: "users"
+          MYSQL_USER: "admin"
+          MYSQL_PASSWORD: "123456"
+      - name: Cleanup docker
+        run: docker compose -f test.compose.yml down
