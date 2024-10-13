@@ -29,8 +29,6 @@ jobs:
         run: poetry install --no-interaction
       - name: Run tox
         run: poetry run tox -e coverage
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_SCANNER_OPTS: -Dsonar.python.coverage.reportPaths=coverage.xml
@@ -44,3 +42,5 @@ jobs:
           MYSQL_USER: ${{ secrets.MYSQL_USER }}
           MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
           TEST_SECRET_WITH_THIS_EXACT_NAME: ${{ secrets.TEST_SECRET_WITH_THIS_EXACT_NAME }}
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
