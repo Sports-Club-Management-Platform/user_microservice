@@ -30,6 +30,7 @@ jobs:
       - name: Run tox
         run: poetry run tox -e coverage
         with:
+
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_SCANNER_OPTS: -Dsonar.python.coverage.reportPaths=coverage.xml
           AWS_REGION: ${{ secrets.AWS_REGION }}
