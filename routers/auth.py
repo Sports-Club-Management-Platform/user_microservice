@@ -32,7 +32,7 @@ async def login(code: str, db: Session = Depends(get_db)):
     if token is None:
         raise HTTPException(status_code=401, detail="Error loging in...")
     else:
-        user_info = user_info_with_token(token)
+        user_info = user_info_with_token(token.get("token"))
 
         new_user = CreateUser(
             id=user_info["UserAttributes"][4]["Value"],
@@ -48,7 +48,7 @@ async def login(code: str, db: Session = Depends(get_db)):
         ):
             save_user(new_user, db)
 
-        return JSONResponse(status_code=200, content=jsonable_encoder({"token": token}))
+        return JSONResponse(status_code=200, content=jsonable_encoder(token))
 
 
 @router.get("/auth/me", dependencies=[Depends(auth)])

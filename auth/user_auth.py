@@ -51,9 +51,10 @@ def auth_with_code(code: str, redirect_uri: str):
     # Check if request was successful
     if response.status_code == 200:
         token_data = response.json()
-        return token_data.get(
-            "access_token"
-        )  # Returns the access token from the response
+        return {
+            "token": token_data.get("access_token"),
+            "expires_in": token_data.get("expires_in"),
+        }  # Returns the access token from the response
     else:
         print(f"Error: {response.status_code}, {response.text}")
         return None
