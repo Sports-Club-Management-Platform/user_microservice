@@ -13,19 +13,6 @@ jobs:
     strategy:
       matrix:
         python: [3.12]
-    env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_SCANNER_OPTS: -Dsonar.python.coverage.reportPaths=coverage.xml
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          USER_POOL_ID: ${{ secrets.USER_POOL_ID }}
-          COGNITO_USER_CLIENT_ID: ${{ secrets.COGNITO_USER_CLIENT_ID }}
-          COGNITO_USER_CLIENT_SECRET: ${{ secrets.COGNITO_USER_CLIENT_SECRET }}
-          COGNITO_TOKEN_ENDPOINT: ${{ secrets.COGNITO_TOKEN_ENDPOINT }}
-          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
-          MYSQL_USER: ${{ secrets.MYSQL_USER }}
-          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-          TEST_SECRET_WITH_THIS_EXACT_NAME: ${{ secrets.TEST_SECRET_WITH_THIS_EXACT_NAME }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -42,5 +29,18 @@ jobs:
         run: poetry install --no-interaction
       - name: Run tox
         run: poetry run tox -e coverage
+        with:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_SCANNER_OPTS: -Dsonar.python.coverage.reportPaths=coverage.xml
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          USER_POOL_ID: ${{ secrets.USER_POOL_ID }}
+          COGNITO_USER_CLIENT_ID: ${{ secrets.COGNITO_USER_CLIENT_ID }}
+          COGNITO_USER_CLIENT_SECRET: ${{ secrets.COGNITO_USER_CLIENT_SECRET }}
+          COGNITO_TOKEN_ENDPOINT: ${{ secrets.COGNITO_TOKEN_ENDPOINT }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          TEST_SECRET_WITH_THIS_EXACT_NAME: ${{ secrets.TEST_SECRET_WITH_THIS_EXACT_NAME }}
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
