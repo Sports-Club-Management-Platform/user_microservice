@@ -2,9 +2,7 @@ import base64
 import os
 import pytest
 import logging
-import uuid
 from unittest.mock import patch
-import boto3
 
 from auth.user_auth import auth_with_code, user_info_with_token
 
