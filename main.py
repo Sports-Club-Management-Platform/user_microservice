@@ -16,22 +16,16 @@ async def lifespan(app):
 
 app = FastAPI(
     lifespan=lifespan,
-    title="To-Do List Application API",
+    title="ClubSync User_Microservice API",
     version="0.0.1",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
     contact={
-        "name": "To-Do List Application",
+        "name": "ClubSync",
     },
     servers=[{"url": "http://localhost:8000", "description": "Local server"}],
 )
-
-
-@app.get("/")
-async def main_route():
-    return {"message": "Hey, It is me Goku"}
-
 
 app.add_middleware(
     CORSMiddleware,
