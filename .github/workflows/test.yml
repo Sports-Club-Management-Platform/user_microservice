@@ -14,17 +14,19 @@ jobs:
         python: [3.12]
     steps:
       - name: set env
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          USER_POOL_ID: ${{ secrets.USER_POOL_ID }}
+          COGNITO_USER_CLIENT_ID: ${{ secrets.COGNITO_USER_CLIENT_ID }}
+          COGNITO_USER_CLIENT_SECRET: ${{ secrets.COGNITO_USER_CLIENT_SECRET }}
+          COGNITO_TOKEN_ENDPOINT: ${{ secrets.COGNITO_TOKEN_ENDPOINT }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          TEST_SECRET_WITH_THIS_EXACT_NAME: some_text
         run: |
-          export AWS_REGION= ${{ secrets.AWS_REGION }};
-          export USER_POOL_ID= ${{ secrets.USER_POOL_ID }};
-          export COGNITO_USER_CLIENT_ID= ${{ secrets.COGNITO_USER_CLIENT_ID }};
-          export COGNITO_USER_CLIENT_SECRET= ${{ secrets.COGNITO_USER_CLIENT_SECRET }};
-          export COGNITO_TOKEN_ENDPOINT= ${{ secrets.COGNITO_TOKEN_ENDPOINT }};
-          export MYSQL_ROOT_PASSWORD= ${{ secrets.MYSQL_ROOT_PASSWORD }};
-          export MYSQL_DATABASE= ${{ secrets.MYSQL_DATABASE }};
-          export MYSQL_USER= ${{ secrets.MYSQL_USER }};
-          export MYSQL_PASSWORD= ${{ secrets.MYSQL_PASSWORD }};
-          export TEST_SECRET_WITH_THIS_EXACT_NAME=some_text;
+          echo "Environment variables set successfully"
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
