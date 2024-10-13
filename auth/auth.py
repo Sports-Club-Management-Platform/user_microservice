@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 from fastapi import Depends, HTTPException
 from starlette.status import HTTP_403_FORBIDDEN
 from auth.JWTBearer import JWKS, JWTBearer, JWTAuthorizationCredentials
-from tests.repositories.test_user_repo import logger
 
 env_path = os.path.join(os.path.dirname(__file__), "..", ".aws")
 load_dotenv(env_path)
@@ -17,7 +16,7 @@ USER_POOL_ID = os.environ.get("USER_POOL_ID")
 response = requests.get(
     f"https://cognito-idp.{AWS_REGION}.amazonaws.com/{USER_POOL_ID}/.well-known/jwks.json"
 )
-logger.info(response.json())
+print(response.json())
 jwks = JWKS.model_validate(
     response.json()
 )
