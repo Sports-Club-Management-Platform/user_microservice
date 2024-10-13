@@ -12,15 +12,12 @@ load_dotenv(env_path)
 AWS_REGION = os.environ.get("AWS_REGION")
 USER_POOL_ID = os.environ.get("USER_POOL_ID")
 
-
+# Get the JWKS from the Cognito User Pool
 response = requests.get(
     f"https://cognito-idp.{AWS_REGION}.amazonaws.com/{USER_POOL_ID}/.well-known/jwks.json"
 )
-print(os.environ.get("TEST_SECRET_WITH_THIS_EXACT_NAME"))
-print(response.json())
-jwks = JWKS.model_validate(
-    response.json()
-)
+
+jwks = JWKS.model_validate(response.json())
 
 auth = JWTBearer(jwks)
 
@@ -28,6 +25,13 @@ auth = JWTBearer(jwks)
 async def get_current_user(
     credentials: JWTAuthorizationCredentials = Depends(auth),
 ) -> str:
+    """
+    Get the current user from the JWT token.
+
+    :param credentials: JWTAuthorizationCredentials object.
+    :return: Username of the user.
+    """
+
     try:
         return credentials.claims["username"]
     except KeyError:

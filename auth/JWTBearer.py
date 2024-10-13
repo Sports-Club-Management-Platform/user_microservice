@@ -36,7 +36,12 @@ class JWTBearer(HTTPBearer):
         self.kid_to_jwk = {jwk["kid"]: jwk for jwk in jwks.keys}
 
     def decode_jwt(self, token: str):
-        """Decode the JWT into header and payload."""
+        """
+        Decode a JWT token.
+
+        :param token: JWT token to decode.
+        :return: Decoded header and payload.
+        """
         try:
             header, payload, signature = token.split(".")
             decoded_header = json.loads(
@@ -51,7 +56,12 @@ class JWTBearer(HTTPBearer):
             return None, None  # Return None on error
 
     def verify_jwk_token(self, jwt_credentials: JWTAuthorizationCredentials) -> bool:
-        """Verify the JWT token using the JWK."""
+        """
+        Verify a JWT token using a JWK.
+
+        :param jwt_credentials: JWTAuthorizationCredentials object.
+        :return: True if the token is valid, otherwise False.
+        """
         try:
             public_key = self.kid_to_jwk[jwt_credentials.header["kid"]]
         except KeyError:
@@ -59,14 +69,21 @@ class JWTBearer(HTTPBearer):
                 status_code=HTTP_403_FORBIDDEN, detail="JWK public key not found"
             )
 
+        # Construct the public key
         key = jwk.construct(public_key)
+        # Decode the signature
         decoded_signature = base64url_decode(jwt_credentials.signature.encode())
 
         # Verify the token's signature
         return key.verify(jwt_credentials.message.encode(), decoded_signature)
 
     async def __call__(self, request: Request) -> Optional[JWTAuthorizationCredentials]:
-        """Call the authentication method when receiving a request."""
+        """
+        Call method to authenticate the request.
+
+        :param request: Incoming request.
+        :return: JWTAuthorizationCredentials object if valid, otherwise raise an HTTPException.
+        """
         credentials: HTTPAuthorizationCredentials = await super().__call__(request)
 
         if credentials:
