@@ -76,7 +76,7 @@ class JWTBearer(HTTPBearer):
                     status_code=HTTP_403_FORBIDDEN, detail="Wrong authentication method"
                 )
 
-            jwt_token = credentials.credentials[7:]  # Remove the "Bearer " prefix
+            jwt_token = credentials.credentials
 
             # Ensure that the JWT has three parts
             if len(jwt_token.split(".")) != 3:
@@ -115,6 +115,7 @@ class JWTBearer(HTTPBearer):
                 )
 
             except (ValueError, json.JSONDecodeError):
+                print("crashed in the other place")
                 raise HTTPException(
                     status_code=HTTP_403_FORBIDDEN, detail="Invalid JWT header"
                 )
