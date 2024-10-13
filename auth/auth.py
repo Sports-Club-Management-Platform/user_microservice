@@ -13,7 +13,7 @@ load_dotenv(env_path)
 AWS_REGION = os.environ.get("AWS_REGION")
 USER_POOL_ID = os.environ.get("USER_POOL_ID")
 
-jwks = JWKS.parse_obj(
+jwks = JWKS.model_validate(
     requests.get(
         f"https://cognito-idp.{AWS_REGION}.amazonaws.com/{USER_POOL_ID}/.well-known/jwks.json"
     ).json()
