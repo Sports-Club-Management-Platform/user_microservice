@@ -16,6 +16,12 @@ USER_POOL_ID = os.environ.get("USER_POOL_ID")
 response = requests.get(
     f"https://cognito-idp.{AWS_REGION}.amazonaws.com/{USER_POOL_ID}/.well-known/jwks.json"
 )
+print(os.environ.get("TEST_SECRET_WITH_THIS_EXACT_NAME"))
+print(response.json())
+jwks = JWKS.model_validate(
+    response.json()
+)
+
 
 jwks = JWKS.model_validate(response.json())
 
