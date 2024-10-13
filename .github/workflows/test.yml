@@ -1,0 +1,53 @@
+name: Test
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, SCRUM-5-User-Registration]
+  pull_request:
+    types: [opened, synchronize, reopened]
+env:
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  SONAR_SCANNER_OPTS: -Dsonar.python.coverage.reportPaths=coverage.xml
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  USER_POOL_ID: ${{ secrets.USER_POOL_ID }}
+  COGNITO_USER_CLIENT_ID: ${{ secrets.COGNITO_USER_CLIENT_ID }}
+  COGNITO_USER_CLIENT_SECRET: ${{ secrets.COGNITO_USER_CLIENT_SECRET }}
+  COGNITO_TOKEN_ENDPOINT: ${{ secrets.COGNITO_TOKEN_ENDPOINT }}
+  MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+  MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+  MYSQL_USER: ${{ secrets.MYSQL_USER }}
+  MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+  TEST_SECRET_WITH_THIS_EXACT_NAME: ${{ secrets.TEST_SECRET_WITH_THIS_EXACT_NAME }}
+jobs:
+  sonarcloud:
+    name: SonarCloud
+    runs-on: ubuntu-latest
+    environment: SonarCloud
+    strategy:
+      matrix:
+        python: [3.12]
+    steps:
+      - name: set env
+        run: |
+          export TEST_SECRET_WITH_THIS_EXACT_NAME=${{ secrets.TEST_SECRET_WITH_THIS_EXACT_NAME }}
+      - name: Show repo env secret
+        run: |
+          echo ${{ secrets.TEST_SECRET_WITH_THIS_EXACT_NAME }}; echo ${{ env.TEST_SECRET_WITH_THIS_EXACT_NAME }}
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Setup poetry
+        run: |
+          pip install --upgrade pip setuptools
+          pip install poetry
+      - name: Install tox and any other packages
+        run: poetry install --no-interaction
+      - name: Run tox
+        run: poetry run tox -e coverage
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
