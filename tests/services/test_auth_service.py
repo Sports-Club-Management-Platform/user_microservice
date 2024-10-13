@@ -52,7 +52,7 @@ def test_unsuccessful_auth_with_code(requests_post_mock):
     assert result is None
 
 
-@patch("auth.user_auth.requests.post", return_value=RequestsMockResponse({"access_token": "client_access_token"}, 200))
+@patch("auth.user_auth.requests.post", return_value=RequestsMockResponse({"access_token": "client_access_token", "expires_in": 200}, 200))
 def test_successful_auth_with_code(requests_post_mock):
     payload = {
         "grant_type": "authorization_code",
@@ -64,7 +64,7 @@ def test_successful_auth_with_code(requests_post_mock):
     result = auth_with_code("code", "redirect_uri")
 
     requests_post_mock.assert_called_once_with(cognito_token_endpoint, data=payload, headers=headers)
-    assert result == "client_access_token"
+    assert result == {"token": "client_access_token", "expires_in": 200}
 
 
 @patch("auth.user_auth.cognito_client.get_user", return_value={"ResponseMetadata": {"HTTPStatusCode": 200}})

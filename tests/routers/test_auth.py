@@ -56,7 +56,7 @@ def test_unsuccessful_login_with_invalid_credentials(mock_auth_with_code, mock_u
 
 @patch("routers.auth.save_user")
 @patch("routers.auth.user_info_with_token", return_value=user_attributes)
-@patch("routers.auth.auth_with_code", return_value="valid_token")
+@patch("routers.auth.auth_with_code", return_value={"token": "valid_token", "expires_in": 100})
 def test_successful_login_with_valid_credentials_found_username(mock_auth_with_code, mock_user_info_with_token,
                                                                 mock_save_user, mock_db):
     mock_db.query.return_value.filter.return_value.first.side_effect = [True, False]
@@ -64,7 +64,7 @@ def test_successful_login_with_valid_credentials_found_username(mock_auth_with_c
     response = client.post("/auth/sign-in?code=valid_code")
 
     assert response.status_code == 200
-    assert response.json() == {"token": "valid_token"}
+    assert response.json() == {"token": "valid_token", "expires_in": 100}
     mock_auth_with_code.assert_called_once_with("valid_code", REDIRECT_URI)
     mock_user_info_with_token.assert_called_once_with("valid_token")
     assert mock_db.query.call_count == 1
@@ -73,7 +73,7 @@ def test_successful_login_with_valid_credentials_found_username(mock_auth_with_c
 
 @patch("routers.auth.save_user")
 @patch("routers.auth.user_info_with_token", return_value=user_attributes)
-@patch("routers.auth.auth_with_code", return_value="valid_token")
+@patch("routers.auth.auth_with_code", return_value={"token": "valid_token", "expires_in": 100})
 def test_successful_login_with_valid_credentials_found_email(mock_auth_with_code, mock_user_info_with_token,
                                                              mock_save_user, mock_db):
     mock_db.query.return_value.filter.return_value.first.side_effect = [False, True]
@@ -81,7 +81,7 @@ def test_successful_login_with_valid_credentials_found_email(mock_auth_with_code
     response = client.post("/auth/sign-in?code=valid_code")
 
     assert response.status_code == 200
-    assert response.json() == {"token": "valid_token"}
+    assert response.json() == {"token": "valid_token", "expires_in": 100}
     mock_auth_with_code.assert_called_once_with("valid_code", REDIRECT_URI)
     mock_user_info_with_token.assert_called_once_with("valid_token")
     assert mock_db.query.call_count == 2
@@ -90,7 +90,7 @@ def test_successful_login_with_valid_credentials_found_email(mock_auth_with_code
 
 @patch("routers.auth.save_user")
 @patch("routers.auth.user_info_with_token", return_value=user_attributes)
-@patch("routers.auth.auth_with_code", return_value="valid_token")
+@patch("routers.auth.auth_with_code", return_value={"token": "valid_token", "expires_in": 100})
 def test_successful_login_with_valid_credentials_new_user(mock_auth_with_code, mock_user_info_with_token,
                                                           mock_save_user, mock_db):
     mock_db.query.return_value.filter.return_value.first.side_effect = [False, False]
@@ -98,7 +98,7 @@ def test_successful_login_with_valid_credentials_new_user(mock_auth_with_code, m
     response = client.post("/auth/sign-in?code=valid_code")
 
     assert response.status_code == 200
-    assert response.json() == {"token": "valid_token"}
+    assert response.json() == {"token": "valid_token", "expires_in": 100}
     mock_auth_with_code.assert_called_once_with("valid_code", REDIRECT_URI)
     mock_user_info_with_token.assert_called_once_with("valid_token")
     assert mock_db.query.call_count == 2
