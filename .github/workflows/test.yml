@@ -43,3 +43,4 @@ jobs:
           MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
           MYSQL_USER: ${{ secrets.MYSQL_USER }}
           MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          TEST_SECRET_WITH_THIS_EXACT_NAME: ${{ secrets.TEST_SECRET_WITH_THIS_EXACT_NAME }}
