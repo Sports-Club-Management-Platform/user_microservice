@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["André Oliveira <andreaoliveira@ua.pt>"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.13"
@@ -21,6 +22,10 @@ httpx = "^0.27.2"
 pytest = "^8.3.3"
 tox = "^4.21.2"
 testcontainers = "^4.8.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2"
+coverage = "^5.5"
 
 
 [build-system]
