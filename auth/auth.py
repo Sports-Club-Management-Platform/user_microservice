@@ -5,9 +5,7 @@ from dotenv import load_dotenv
 from fastapi import Depends, HTTPException
 from starlette.status import HTTP_403_FORBIDDEN
 from auth.JWTBearer import JWKS, JWTBearer, JWTAuthorizationCredentials
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from tests.repositories.test_user_repo import logger
 
 env_path = os.path.join(os.path.dirname(__file__), "..", ".aws")
 load_dotenv(env_path)
