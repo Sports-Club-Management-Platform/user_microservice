@@ -27,6 +27,9 @@ jobs:
       matrix:
         python: [3.12]
     steps:
+      - name: set env
+        run: |
+          export $TEST_SECRET_WITH_THIS_EXACT_NAME=${{ secrets.TEST_SECRET_WITH_THIS_EXACT_NAME }}
       - name: Show repo env secret
         run: |
           echo ${{ secrets.TEST_SECRET_WITH_THIS_EXACT_NAME }}; echo ${{ env.TEST_SECRET_WITH_THIS_EXACT_NAME }}
