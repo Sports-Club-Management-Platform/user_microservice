@@ -25,6 +25,12 @@ class User(Base):
     )
 
     def active(self, db: Session = Depends(get_db)):
+        """
+        Activate a user.
+
+        :param db: Database session.
+        :return: User object updated.
+        """
         self.is_active = True
         self.updated_at = datetime.datetime.now()
         db.commit()
@@ -33,7 +39,13 @@ class User(Base):
 
 
 def save_user(new_user: CreateUser, db: Session = Depends(get_db)):
+    """
+    Save a new user in the database.
 
+    :param new_user: User object to save.
+    :param db: Database session.
+    :return: User object saved.
+    """
     db_user = User(
         id=new_user.id,
         given_name=new_user.given_name,

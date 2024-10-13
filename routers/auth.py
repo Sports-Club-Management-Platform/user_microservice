@@ -26,12 +26,19 @@ REDIRECT_URI = os.environ.get("REDIRECT_URI")
 @router.post("/auth/sign-in")
 async def login(code: str, db: Session = Depends(get_db)):
     """
-    Function that signs in a user and returns a token
+    Function that logs in a user.
+
+    :param code: Authorization code obtained after user login.
+    :param db: Database session.
+    :return: Access token and expiration time if authentication is successful, otherwise raise an HTTPException.
     """
+
+    # Authenticate user with the code
     token = auth_with_code(code, REDIRECT_URI)
     if token is None:
         raise HTTPException(status_code=401, detail="Error loging in...")
     else:
+        # Get user info from the token
         user_info = user_info_with_token(token.get("token"))
 
         new_user = CreateUser(
@@ -42,6 +49,7 @@ async def login(code: str, db: Session = Depends(get_db)):
             email=user_info["UserAttributes"][0]["Value"],
         )
 
+        # If the user does not exist, save it
         if not (
             db.query(User).filter(User.username == new_user.username).first()
             or db.query(User).filter(User.email == new_user.email).first()
@@ -56,7 +64,11 @@ async def current_user(
     username: str = Depends(get_current_user), db: Session = Depends(get_db)
 ):
     """
-    Function that returns the current user
+    Function that returns the current user.
+
+    :param username: Username of the user to get.
+    :param db: Database session.
+    :return: User object if found, otherwise raise an HTTPException
     """
     return JSONResponse(
         status_code=200,

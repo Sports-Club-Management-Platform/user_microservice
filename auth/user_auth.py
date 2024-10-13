@@ -19,16 +19,13 @@ def auth_with_code(code: str, redirect_uri: str):
     Authenticate using the authorization code -> returns tokens from Amazon Cognito User Pool.
 
     :param code: Authorization code obtained after user login.
-    :param redirect_uri: Redirect URI configured in the Cognito User Pool.
-    :param client_id: Cognito User Pool App Client ID (optional).
-    :return: Access token if authentication is successful, otherwise None.
+    :param redirect_uri: Redirect URI used during the login process.
+    :return: Access token and expiration time if authentication is successful, otherwise None.
     """
     client_id = os.getenv("COGNITO_USER_CLIENT_ID")
     client_credentials = f"{client_id}:{os.getenv('COGNITO_USER_CLIENT_SECRET')}"
     auth_header = base64.b64encode(client_credentials.encode()).decode()
-    token_endpoint = os.getenv(
-        "COGNITO_TOKEN_ENDPOINT"
-    )  # Example: https://your_cognito_domain/oauth2/token
+    token_endpoint = os.getenv("COGNITO_TOKEN_ENDPOINT")
 
     # Prepare token request payload
     payload = {
@@ -54,13 +51,19 @@ def auth_with_code(code: str, redirect_uri: str):
         return {
             "token": token_data.get("access_token"),
             "expires_in": token_data.get("expires_in"),
-        }  # Returns the access token from the response
+        }  # Returns the access token from the response and the expiration time
     else:
         print(f"Error: {response.status_code}, {response.text}")
         return None
 
 
 def user_info_with_token(access_token: str):
+    """
+    Get user information using the access token.
+
+    :param access_token: Access token obtained after successful authentication.
+    :return: User information if successful, otherwise None.
+    """
 
     response = cognito_client.get_user(AccessToken=access_token)
 
