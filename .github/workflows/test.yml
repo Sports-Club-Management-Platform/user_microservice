@@ -25,11 +25,15 @@ jobs:
           MYSQL_USER: ${{ secrets.MYSQL_USER }}
           MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
           REDIRECT_URI: ${{ secrets.REDIRECT_URI }}
-        run: |
-          echo "Environment variables set successfully"
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+      - name: Print MySQL environment variables
+        run: |
+          echo "MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD"
+          echo "MYSQL_USER: $MYSQL_USER"
+          echo "MYSQL_PASSWORD: $MYSQL_PASSWORD"
+          echo "MYSQL_DATABASE: $MYSQL_DATABASE"
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
