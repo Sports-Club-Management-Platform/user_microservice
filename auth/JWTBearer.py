@@ -106,8 +106,6 @@ class JWTBearer(HTTPBearer):
             raise HTTPException(
                 status_code=HTTP_403_FORBIDDEN, detail="Invalid JWT header"
             )
-        except JWTError:
-            raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="JWK invalid")
 
         # Verify if the token is valid
         if not self.verify_jwk_token(jwt_credentials):

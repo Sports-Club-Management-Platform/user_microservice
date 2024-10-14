@@ -5,8 +5,11 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /api
 
 RUN apt-get update && \
+    apt-get install -y --no-install-recommends gcc libffi-dev libssl-dev && \
     pip install --upgrade pip && \
-    pip install --no-cache-dir --upgrade poetry
+    pip install --no-cache-dir --upgrade poetry && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY poetry.lock pyproject.toml ./
 COPY . .
