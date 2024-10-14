@@ -5,8 +5,6 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
-env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
-load_dotenv(env_path)
 
 MYSQL_DATABASE = os.environ.get("MYSQL_DATABASE")
 MYSQL_USER = os.environ.get("MYSQL_USER")

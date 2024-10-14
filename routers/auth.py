@@ -18,8 +18,7 @@ from schemas.user import CreateUser
 router = APIRouter(tags=["Authentication and Authorization"])
 
 auth = JWTBearer(jwks)
-env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
-load_dotenv(env_path)
+
 REDIRECT_URI = os.environ.get("REDIRECT_URI")
 
 
