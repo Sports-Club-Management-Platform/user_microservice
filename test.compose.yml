@@ -3,10 +3,10 @@ services:
   db:
     image: mysql:8.0
     environment:
-      - MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
-      - MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}
-      - MYSQL_USER=${{ secrets.MYSQL_USER }}
-      - MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}}
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
@@ -20,17 +20,17 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - MYSQL_URL=mysql+pymysql://${{ secrets.MYSQL_USER }}:${{ secrets.MYSQL_PASSWORD }}@db:3306/${{ secrets.MYSQL_DATABASE }}
-      - REDIRECT_URI=${{ secrets.REDIRECT_URI }}
-      - MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
-      - MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}
-      - MYSQL_USER=${{ secrets.MYSQL_USER }}
-      - MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
-      - AWS_REGION=${{ secrets.AWS_REGION }}
-      - USER_POOL_ID=${{ secrets.USER_POOL_ID }}
-      - COGNITO_USER_CLIENT_ID=${{ secrets.COGNITO_USER_CLIENT_ID }}
-      - COGNITO_USER_CLIENT_SECRET=${{ secrets.COGNITO_USER_CLIENT_SECRET }}
-      - COGNITO_TOKEN_ENDPOINT=${{ secrets.COGNITO_TOKEN_ENDPOINT
+      - MYSQL_URL=mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
+      - REDIRECT_URI=${REDIRECT_URI}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}}
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - AWS_REGION=${AWS_REGION}}
+      - USER_POOL_ID=${USER_POOL_ID}
+      - COGNITO_USER_CLIENT_ID=${COGNITO_USER_CLIENT_ID}
+      - COGNITO_USER_CLIENT_SECRET=${COGNITO_USER_CLIENT_SECRET}
+      - COGNITO_TOKEN_ENDPOINT=${COGNITO_TOKEN_ENDPOINT}
     volumes:
       - .:/api
     depends_on:

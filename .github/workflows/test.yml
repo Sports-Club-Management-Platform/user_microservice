@@ -24,6 +24,7 @@ jobs:
           MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
           MYSQL_USER: ${{ secrets.MYSQL_USER }}
           MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          REDIRECT_URI: ${{ secrets.REDIRECT_URI }}
           TEST_SECRET_WITH_THIS_EXACT_NAME: some_text
         run: |
           echo "Environment variables set successfully"
