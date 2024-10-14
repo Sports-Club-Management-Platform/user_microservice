@@ -15,7 +15,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "mysqladmin ping -h localhost -u${MYSQL_USER} -p${MYSQL_PASSWORD}",
+          "mysqladmin ping -h localhost -u${MYSQL_USER} -p${MYSQL_ROOT_PASSWORD}",
         ]
       interval: 10s
       timeout: 30s
@@ -34,7 +34,7 @@ services:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - AWS_REGION=${AWS_REGION}
       - USER_POOL_ID=${USER_POOL_ID}
       - COGNITO_USER_CLIENT_ID=${COGNITO_USER_CLIENT_ID}
