@@ -13,7 +13,7 @@ jobs:
       matrix:
         python: [3.12]
     steps:
-      - name: set env
+      - name: Set environment variables
         env:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           USER_POOL_ID: ${{ secrets.USER_POOL_ID }}
@@ -25,31 +25,37 @@ jobs:
           MYSQL_USER: ${{ secrets.MYSQL_USER }}
           MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
           REDIRECT_URI: ${{ secrets.REDIRECT_URI }}
+        run: |
+          echo "Environment variables set successfully"
+
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python }}
+
       - name: Print MySQL environment variables
         run: |
           echo "MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD"
           echo "MYSQL_USER: $MYSQL_USER"
           echo "MYSQL_PASSWORD: $MYSQL_PASSWORD"
           echo "MYSQL_DATABASE: $MYSQL_DATABASE"
+
       - name: Setup poetry
         run: |
           pip install --upgrade pip setuptools
           pip install poetry
-      - name: Install tox and any other packages
+
+      - name: Install tox and other dependencies
         run: poetry install --no-interaction
-      - name: Setup docker
+
+      - name: Setup Docker and bring up services
         run: docker compose -f test.compose.yml up -d
-      - name: Get DB logs
-        if: failure()
-        run: docker logs api-db-1
-      - name: Run tox
+
+      - name: Run tests using tox
         run: poetry run tox -e coverage
 
       - name: SonarCloud Scan
@@ -57,5 +63,10 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_SCANNER_OPTS: -Dsonar.python.coverage.reportPaths=coverage.xml
-      - name: Cleanup docker
-        run: docker compose -f compose.test.yml down
+
+      - name: Get DB logs on failure
+        if: failure()
+        run: docker logs api-db-1
+
+      - name: Cleanup Docker containers
+        run: docker compose -f test.compose.yml down
