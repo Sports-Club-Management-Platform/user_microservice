@@ -28,28 +28,22 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
       - name: Print MySQL environment variables
         run: |
           echo "MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD"
           echo "MYSQL_USER: $MYSQL_USER"
           echo "MYSQL_PASSWORD: $MYSQL_PASSWORD"
           echo "MYSQL_DATABASE: $MYSQL_DATABASE"
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python }}
       - name: Setup poetry
         run: |
           pip install --upgrade pip setuptools
           pip install poetry
       - name: Install tox and any other packages
         run: poetry install --no-interaction
-      - name: Test MySQL Environment Variables
-        run: |
-          echo $MYSQL_ROOT_PASSWORD
-          echo $MYSQL_USER
-          echo $MYSQL_PASSWORD
-          echo $MYSQL_DATABASE
       - name: Setup docker
         run: docker compose -f test.compose.yml up -d
       - name: Get DB logs
