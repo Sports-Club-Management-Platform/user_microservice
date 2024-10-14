@@ -43,7 +43,7 @@ class JWTBearer(HTTPBearer):
         :return: Decoded header and payload.
         """
         try:
-            header, payload, signature = token.split(".")
+            header, payload, _ = token.split(".")
             decoded_header = json.loads(
                 base64.urlsafe_b64decode(header + "==").decode("utf-8")
             )
@@ -52,7 +52,7 @@ class JWTBearer(HTTPBearer):
             )
 
             return decoded_header, decoded_payload
-        except Exception as e:
+        except Exception:
             return None, None  # Return None on error
 
     def verify_jwk_token(self, jwt_credentials: JWTAuthorizationCredentials) -> bool:
@@ -83,68 +83,92 @@ class JWTBearer(HTTPBearer):
 
         :param request: Incoming request.
         :return: JWTAuthorizationCredentials object if valid, otherwise raise an HTTPException.
+
+        :raises HTTPException: If the JWT is invalid.
         """
         credentials: HTTPAuthorizationCredentials = await super().__call__(request)
 
-        if credentials:
-            # Check if the authentication scheme is Bearer
-            if credentials.scheme != "Bearer":
-                raise HTTPException(
-                    status_code=HTTP_403_FORBIDDEN, detail="Wrong authentication method"
-                )
+        if not credentials:
+            return None
 
-            jwt_token = credentials.credentials
+        # Check authentication method
+        self.verify_authentication_scheme(credentials)
 
-            # Ensure that the JWT has three parts
-            if len(jwt_token.split(".")) != 3:
-                raise HTTPException(
-                    status_code=HTTP_403_FORBIDDEN, detail="Invalid JWT structure"
-                )
+        jwt_token = credentials.credentials
+        self.validate_jwt_structure(jwt_token)
 
-            message, signature = jwt_token.rsplit(".", 1)
-            header_, _, _ = jwt_token.split(".")
+        try:
+            decoded_header, claims = self.decode_jwt(jwt_token)
+            jwt_credentials = self.create_jwt_credentials(
+                jwt_token, decoded_header, claims
+            )
+        except (ValueError, json.JSONDecodeError):
+            raise HTTPException(
+                status_code=HTTP_403_FORBIDDEN, detail="Invalid JWT header"
+            )
+        except JWTError:
+            raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="JWK invalid")
 
-            try:
-                # Decode the JWT and extract the header and claims
-                decoded_header, claims = self.decode_jwt(jwt_token)
-
-                if claims is None:
-                    raise HTTPException(
-                        status_code=HTTP_403_FORBIDDEN, detail="Failed to decode claims"
-                    )
-
-                # Remove unnecessary fields from claims
-                claims.pop("version", None)
-                claims.pop("cognito:groups", None)
-
-                # Convert timestamps to strings
-                for claim in ["auth_time", "iat", "exp"]:
-                    if claim in claims:
-                        claims[claim] = str(claims[claim])
-
-                # Create a JWT credentials object
-                jwt_credentials = JWTAuthorizationCredentials(
-                    jwt_token=jwt_token,
-                    header=decoded_header,
-                    claims=claims,
-                    signature=signature,
-                    message=message,
-                )
-
-            except (ValueError, json.JSONDecodeError):
-                print("crashed in the other place")
-                raise HTTPException(
-                    status_code=HTTP_403_FORBIDDEN, detail="Invalid JWT header"
-                )
-            except JWTError:
-                raise HTTPException(
-                    status_code=HTTP_403_FORBIDDEN, detail="JWK invalid"
-                )
-
-            # Verify if the token is valid
-            if not self.verify_jwk_token(jwt_credentials):
-                raise HTTPException(
-                    status_code=HTTP_403_FORBIDDEN, detail="JWK invalid"
-                )
+        # Verify if the token is valid
+        if not self.verify_jwk_token(jwt_credentials):
+            raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="JWK invalid")
 
         return jwt_credentials  # Return the JWT credentials if valid
+
+    def verify_authentication_scheme(self, credentials: HTTPAuthorizationCredentials):
+        """
+        Verify that the authentication scheme is Bearer.
+
+        :param credentials: HTTPAuthorizationCredentials object.
+
+        :raises HTTPException: If the authentication scheme is not Bearer."""
+        if credentials.scheme != "Bearer":
+            raise HTTPException(
+                status_code=HTTP_403_FORBIDDEN, detail="Wrong authentication method"
+            )
+
+    def validate_jwt_structure(self, jwt_token: str):
+        """
+        Validate the structure of a JWT token.
+
+        :param jwt_token: JWT token to validate.
+
+        :raises HTTPException: If the JWT structure is invalid.
+        """
+        if len(jwt_token.split(".")) != 3:
+            raise HTTPException(
+                status_code=HTTP_403_FORBIDDEN, detail="Invalid JWT structure"
+            )
+
+    def create_jwt_credentials(
+        self, jwt_token: str, decoded_header: dict, claims: dict
+    ) -> JWTAuthorizationCredentials:
+        """
+        Create a JWTAuthorizationCredentials object.
+
+        :param jwt_token: JWT token.
+        :param decoded_header: Decoded JWT header.
+        :param claims: Decoded JWT claims.
+        :return: JWTAuthorizationCredentials object.
+        """
+        if claims is None:
+            raise HTTPException(
+                status_code=HTTP_403_FORBIDDEN, detail="Failed to decode claims"
+            )
+
+        # Remove unnecessary fields from claims
+        claims.pop("version", None)
+        claims.pop("cognito:groups", None)
+
+        # Convert timestamps to strings
+        for claim in ["auth_time", "iat", "exp"]:
+            if claim in claims:
+                claims[claim] = str(claims[claim])
+
+        return JWTAuthorizationCredentials(
+            jwt_token=jwt_token,
+            header=decoded_header,
+            claims=claims,
+            signature=jwt_token.rsplit(".", 1)[-1],
+            message=jwt_token.rsplit(".", 1)[0],
+        )
