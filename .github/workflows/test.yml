@@ -25,7 +25,6 @@ jobs:
           MYSQL_USER: ${{ secrets.MYSQL_USER }}
           MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
           REDIRECT_URI: ${{ secrets.REDIRECT_URI }}
-          TEST_SECRET_WITH_THIS_EXACT_NAME: some_text
         run: |
           echo "Environment variables set successfully"
       - uses: actions/checkout@v2
@@ -48,6 +47,8 @@ jobs:
       - name: Get DB logs
         if: failure()
         run: docker logs api-db-1
+      - name: Print environment variables
+        run: printenv | grep MYSQL
       - name: Run tox
         run: poetry run tox -e coverage
 
