@@ -5,12 +5,22 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}}
+      - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
       - ../volumes/mysql:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h localhost -u${MYSQL_USER} -p${MYSQL_ROOT_PASSWORD}",
+        ]
+      interval: 10s
+      timeout: 30s
+      retries: 3
+      start_period: 30s
 
   web:
     build:
@@ -23,9 +33,9 @@ services:
       - REDIRECT_URI=${REDIRECT_URI}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}}
+      - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - AWS_REGION=${AWS_REGION}}
+      - AWS_REGION=${AWS_REGION}
       - USER_POOL_ID=${USER_POOL_ID}
       - COGNITO_USER_CLIENT_ID=${COGNITO_USER_CLIENT_ID}
       - COGNITO_USER_CLIENT_SECRET=${COGNITO_USER_CLIENT_SECRET}
@@ -33,4 +43,5 @@ services:
     volumes:
       - .:/api
     depends_on:
-      - db
+      db:
+        condition: service_healthy
