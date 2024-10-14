@@ -102,7 +102,7 @@ class JWTBearer(HTTPBearer):
             jwt_credentials = self.create_jwt_credentials(
                 jwt_token, decoded_header, claims
             )
-        except (ValueError, json.JSONDecodeError):
+        except ValueError:
             raise HTTPException(
                 status_code=HTTP_403_FORBIDDEN, detail="Invalid JWT header"
             )
