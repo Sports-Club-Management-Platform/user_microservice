@@ -4,7 +4,7 @@ from typing import Dict, Optional, List
 
 from fastapi import HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from jose import jwk, JWTError
+from jose import jwk
 from jose.utils import base64url_decode
 from pydantic import BaseModel
 from starlette.requests import Request
