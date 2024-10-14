@@ -3,11 +3,6 @@ services:
   db:
     image: mysql:8.0
     env_file: .env
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
@@ -31,18 +26,6 @@ services:
       - "8000:8000"
     env_file:
       - .env
-    environment:
-      - MYSQL_URL=mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
-      - REDIRECT_URI=${REDIRECT_URI}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - AWS_REGION=${AWS_REGION}
-      - USER_POOL_ID=${USER_POOL_ID}
-      - COGNITO_USER_CLIENT_ID=${COGNITO_USER_CLIENT_ID}
-      - COGNITO_USER_CLIENT_SECRET=${COGNITO_USER_CLIENT_SECRET}
-      - COGNITO_TOKEN_ENDPOINT=${COGNITO_TOKEN_ENDPOINT}
     volumes:
       - .:/api
     depends_on:
