@@ -13,6 +13,11 @@ jobs:
       matrix:
         python: [3.12]
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
       - name: Create .env file
         run: |
           echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
@@ -26,10 +31,6 @@ jobs:
           echo "COGNITO_USER_CLIENT_SECRET=${{ secrets.COGNITO_USER_CLIENT_SECRET }}" >> .env
           echo "COGNITO_TOKEN_ENDPOINT=${{ secrets.COGNITO_TOKEN_ENDPOINT }}" >> .env
         shell: bash
-
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v2
