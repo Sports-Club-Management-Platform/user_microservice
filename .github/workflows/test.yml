@@ -40,15 +40,17 @@ jobs:
           pip install poetry
       - name: Install tox and any other packages
         run: poetry install --no-interaction
-      - name: Prepare volume directory
-        run: mkdir -p ../volumes/mysql
+      - name: Test MySQL Environment Variables
+        run: |
+          echo $MYSQL_ROOT_PASSWORD
+          echo $MYSQL_USER
+          echo $MYSQL_PASSWORD
+          echo $MYSQL_DATABASE
       - name: Setup docker
         run: docker compose -f test.compose.yml up -d
       - name: Get DB logs
         if: failure()
         run: docker logs api-db-1
-      - name: Print environment variables
-        run: printenv | grep MYSQL
       - name: Run tox
         run: poetry run tox -e coverage
 
