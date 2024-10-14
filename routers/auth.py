@@ -15,6 +15,8 @@ from models.user import User, save_user
 from repositories.userRepo import get_user
 from schemas.user import CreateUser
 
+load_dotenv()
+
 router = APIRouter(tags=["Authentication and Authorization"])
 
 auth = JWTBearer(jwks)

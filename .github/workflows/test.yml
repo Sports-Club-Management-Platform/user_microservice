@@ -57,9 +57,5 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_SCANNER_OPTS: -Dsonar.python.coverage.reportPaths=coverage.xml
 
-      - name: Get DB logs on failure
-        if: failure()
-        run: docker logs api-db-1
-
       - name: Cleanup Docker containers
         run: docker compose -f test.compose.yml down
