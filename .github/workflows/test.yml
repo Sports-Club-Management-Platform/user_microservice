@@ -39,10 +39,10 @@ jobs:
 
       - name: Print MySQL environment variables
         run: |
-          echo "MYSQL_ROOT_PASSWORD: $COGNITO_USER_CLIENT_ID"
-          echo "MYSQL_USER: $COGNITO_USER_CLIENT_ID"
-          echo "MYSQL_PASSWORD: $COGNITO_USER_CLIENT_ID"
-          echo "MYSQL_DATABASE: $COGNITO_USER_CLIENT_ID"
+          echo "MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}"
+          echo "MYSQL_USER: ${{ secrets.MYSQL_USER }}"
+          echo "MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}"
+          echo "MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}"
 
       - name: Setup poetry
         run: |
