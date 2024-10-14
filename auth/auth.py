@@ -6,8 +6,7 @@ from fastapi import Depends, HTTPException
 from starlette.status import HTTP_403_FORBIDDEN
 from auth.JWTBearer import JWKS, JWTBearer, JWTAuthorizationCredentials
 
-env_path = os.path.join(os.path.dirname(__file__), "..", ".aws")
-load_dotenv(env_path)
+load_dotenv()
 
 AWS_REGION = os.environ.get("AWS_REGION")
 USER_POOL_ID = os.environ.get("USER_POOL_ID")
@@ -16,12 +15,8 @@ USER_POOL_ID = os.environ.get("USER_POOL_ID")
 response = requests.get(
     f"https://cognito-idp.{AWS_REGION}.amazonaws.com/{USER_POOL_ID}/.well-known/jwks.json"
 )
-print(os.getenv("TEST_SECRET_WITH_THIS_EXACT_NAME"))
-print(os.environ.get("TEST_SECRET_WITH_THIS_EXACT_NAME"))
-print(response.json())
-jwks = JWKS.model_validate(
-    response.json()
-)
+
+jwks = JWKS.model_validate(response.json())
 
 
 jwks = JWKS.model_validate(response.json())

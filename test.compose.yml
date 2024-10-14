@@ -12,17 +12,29 @@ services:
       - "3306:3306"
     volumes:
       - ../volumes/mysql:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h localhost -u${MYSQL_USER} -p${MYSQL_ROOT_PASSWORD}",
+        ]
+      interval: 10s
+      timeout: 30s
+      retries: 3
+      start_period: 30s
 
   web:
     build:
       context: .
       dockerfile: test.dockerfile
-    env_file: .env
     ports:
       - "8000:8000"
+    env_file:
+      - .env
     environment:
       - MYSQL_URL=mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
     volumes:
       - .:/api
     depends_on:
-      - db
+      db:
+        condition: service_healthy

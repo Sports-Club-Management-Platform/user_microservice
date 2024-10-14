@@ -6,8 +6,7 @@ import base64
 import json
 from dotenv import load_dotenv
 
-env_path = os.path.join(os.path.dirname(__file__), "..", ".aws")
-load_dotenv(env_path)
+load_dotenv()
 
 cognito_client = boto3.client(
     "cognito-idp", region_name=os.getenv("AWS_REGION", "us-east-1")
