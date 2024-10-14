@@ -45,6 +45,9 @@ jobs:
         run: mkdir -p ../volumes/mysql
       - name: Setup docker
         run: docker compose -f test.compose.yml up -d
+      - name: Get DB logs
+        if: failure()
+        run: docker logs api-db-1
       - name: Run tox
         run: poetry run tox -e coverage
 
