@@ -41,6 +41,8 @@ jobs:
           pip install poetry
       - name: Install tox and any other packages
         run: poetry install --no-interaction
+      - name: Prepare volume directory
+        run: mkdir -p ../volumes/mysql
       - name: Setup docker
         run: docker compose -f test.compose.yml up -d
       - name: Run tox
