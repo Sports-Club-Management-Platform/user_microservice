@@ -40,6 +40,8 @@ jobs:
           pip install poetry
       - name: Install tox and any other packages
         run: poetry install --no-interaction
+      - name: Setup docker
+        run: docker compose -f test.compose.yml up -d
       - name: Run tox
         run: poetry run tox -e coverage
 
@@ -48,3 +50,5 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_SCANNER_OPTS: -Dsonar.python.coverage.reportPaths=coverage.xml
+      - name: Cleanup docker
+        run: docker compose -f compose.test.yml down
