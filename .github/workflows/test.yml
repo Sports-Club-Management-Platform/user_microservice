@@ -2,7 +2,7 @@ name: Test
 on:
   workflow_dispatch:
   push:
-    branches: [main, SCRUM-5-User-Registration]
+    branches: [main]
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:
