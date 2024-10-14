@@ -2,6 +2,7 @@ name: api
 services:
   db:
     image: mysql:8.0
+    env_file: .env
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
@@ -28,6 +29,8 @@ services:
       dockerfile: test.dockerfile
     ports:
       - "8000:8000"
+    env_file:
+      - .env
     environment:
       - MYSQL_URL=mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
       - REDIRECT_URI=${REDIRECT_URI}

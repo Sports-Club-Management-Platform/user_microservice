@@ -13,20 +13,19 @@ jobs:
       matrix:
         python: [3.12]
     steps:
-      - name: Set environment variables
-        env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          USER_POOL_ID: ${{ secrets.USER_POOL_ID }}
-          COGNITO_USER_CLIENT_ID: ${{ secrets.COGNITO_USER_CLIENT_ID }}
-          COGNITO_USER_CLIENT_SECRET: ${{ secrets.COGNITO_USER_CLIENT_SECRET }}
-          COGNITO_TOKEN_ENDPOINT: ${{ secrets.COGNITO_TOKEN_ENDPOINT }}
-          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
-          MYSQL_USER: ${{ secrets.MYSQL_USER }}
-          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-          REDIRECT_URI: ${{ secrets.REDIRECT_URI }}
+      - name: Create .env file
         run: |
-          echo "Environment variables set successfully"
+          echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
+          echo "MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> .env
+          echo "MYSQL_USER=${{ secrets.MYSQL_USER }}" >> .env
+          echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
+          echo "REDIRECT_URI=${{ secrets.REDIRECT_URI }}" >> .env
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
+          echo "USER_POOL_ID=${{ secrets.USER_POOL_ID }}" >> .env
+          echo "COGNITO_USER_CLIENT_ID=${{ secrets.COGNITO_USER_CLIENT_ID }}" >> .env
+          echo "COGNITO_USER_CLIENT_SECRET=${{ secrets.COGNITO_USER_CLIENT_SECRET }}" >> .env
+          echo "COGNITO_TOKEN_ENDPOINT=${{ secrets.COGNITO_TOKEN_ENDPOINT }}" >> .env
+        shell: bash
 
       - uses: actions/checkout@v2
         with:
@@ -36,13 +35,6 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python }}
-
-      - name: Print MySQL environment variables
-        run: |
-          echo "MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}"
-          echo "MYSQL_USER: ${{ secrets.MYSQL_USER }}"
-          echo "MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}"
-          echo "MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}"
 
       - name: Setup poetry
         run: |
