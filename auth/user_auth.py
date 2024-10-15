@@ -3,7 +3,6 @@ import os
 import boto3
 import requests
 import base64
-import json
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -71,3 +70,20 @@ def user_info_with_token(access_token: str):
     else:
         print(f"Error: Error getting user info: {response}")
         return None
+
+
+def logout_with_token(access_token: str):
+    """
+    Logout the user by revoking the access token.
+
+    :param access_token: Access token to revoke.
+    :return: True if successful, otherwise False.
+    """
+
+    response = cognito_client.global_sign_out(AccessToken=access_token)
+
+    if response.get("ResponseMetadata").get("HTTPStatusCode") == 200:
+        return True
+    else:
+        print(f"Error: Error logging out: {response}")
+        return False

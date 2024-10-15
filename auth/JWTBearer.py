@@ -1,7 +1,7 @@
 import base64
 import json
 from typing import Dict, Optional, List
-
+from botocore.exceptions import ClientError
 from fastapi import HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwk
@@ -9,6 +9,7 @@ from jose.utils import base64url_decode
 from pydantic import BaseModel
 from starlette.requests import Request
 from starlette.status import HTTP_403_FORBIDDEN
+from auth.user_auth import user_info_with_token
 
 # Define the type for JWK
 JWK = Dict[str, str]
@@ -77,6 +78,32 @@ class JWTBearer(HTTPBearer):
         # Verify the token's signature
         return key.verify(jwt_credentials.message.encode(), decoded_signature)
 
+    def verify_token_revoed(self, jwt_token: str):
+        """
+        Verify if the token is revoked.
+
+        :param jwt_token: JWT token to verify.
+
+        :raises HTTPException: If the token is revoked.
+        """
+        try:
+            user_info_with_token(jwt_token)
+        except ClientError as e:
+            # Verifica se a exceção é 'NotAuthorizedException', ou seja, o token foi revogado
+            if e.response["Error"]["Code"] == "NotAuthorizedException":
+                raise HTTPException(
+                    status_code=HTTP_403_FORBIDDEN,
+                    detail="Access token has been revoked",
+                )
+            else:
+                raise  # Levanta outras exceções de boto3
+        except Exception as e:
+            # Qualquer outra exceção que precise ser tratada
+            raise HTTPException(
+                status_code=HTTP_403_FORBIDDEN,
+                detail="An error occurred while validating the token",
+            )
+
     async def __call__(self, request: Request) -> Optional[JWTAuthorizationCredentials]:
         """
         Call method to authenticate the request.
@@ -95,6 +122,10 @@ class JWTBearer(HTTPBearer):
         self.verify_authentication_scheme(credentials)
 
         jwt_token = credentials.credentials
+
+        # Validate if token is revoked
+        self.verify_token_revoed(jwt_token)
+
         self.validate_jwt_structure(jwt_token)
 
         try:

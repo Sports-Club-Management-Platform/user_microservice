@@ -1,5 +1,4 @@
 import os
-import logging
 import requests
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException
@@ -15,9 +14,6 @@ USER_POOL_ID = os.environ.get("USER_POOL_ID")
 response = requests.get(
     f"https://cognito-idp.{AWS_REGION}.amazonaws.com/{USER_POOL_ID}/.well-known/jwks.json"
 )
-
-jwks = JWKS.model_validate(response.json())
-
 
 jwks = JWKS.model_validate(response.json())
 
