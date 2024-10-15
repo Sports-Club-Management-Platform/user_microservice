@@ -1,16 +1,16 @@
 import os
 
 from dotenv import load_dotenv
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, HTTPException
 from db.database import get_db
 
-from auth.JWTBearer import JWTBearer
+from auth.JWTBearer import JWTAuthorizationCredentials, JWTBearer
 from auth.auth import jwks, get_current_user
-from auth.user_auth import auth_with_code, user_info_with_token
+from auth.user_auth import auth_with_code, user_info_with_token, logout_with_token
 from models.user import User, save_user
 from repositories.userRepo import get_user
 from schemas.user import CreateUser
@@ -75,3 +75,19 @@ async def current_user(
         status_code=200,
         content=jsonable_encoder(get_user(username=username, db=db)),
     )
+
+
+@router.get("/auth/logout", dependencies=[Depends(auth)])
+async def logout(credentials: JWTAuthorizationCredentials = Depends(auth)):
+    """
+    Function that logs out a user.
+
+    :param credentials: JWTAuthorizationCredentials object.
+    :return: Message if logout is successful, otherwise raise an HTTPException.
+    """
+
+    result = logout_with_token(credentials.jwt_token)
+    if result:
+        return JSONResponse(status_code=200, content="Logout successful")
+    else:
+        raise HTTPException(status_code=401, detail="Error loging out...")

@@ -64,7 +64,6 @@ def create_test_user(test_db):
         family_name="family_name1",
         username="username1",
         email="email1",
-        is_active=False,
     )
     test_db.add(test_user)
     test_db.commit()
@@ -112,11 +111,15 @@ def test_create_user(save_user_function, test_db):
         family_name="family_name2",
         username="username2",
         email="email2",
-        is_active=False,
     )
     user = new_user(user_data, test_db)
     assert user is not None
     assert user == test_db.query(User).filter(User.username == "username2").first()
-    assert (user.id == "id2" and user.given_name == "given_name2" and user.username == "username2"
-            and user.family_name == "family_name2" and user.email == "email2" and user.is_active == False)
+    assert (
+        user.id == "id2"
+        and user.given_name == "given_name2"
+        and user.username == "username2"
+        and user.family_name == "family_name2"
+        and user.email == "email2"
+    )
     save_user_function.assert_called_once_with(new_user=user_data, db=test_db)

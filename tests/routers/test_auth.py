@@ -4,13 +4,13 @@ from dotenv import load_dotenv
 from fastapi.testclient import TestClient
 from unittest.mock import patch, MagicMock
 from sqlalchemy.orm import Session
+from auth.JWTBearer import JWTAuthorizationCredentials
 from db.database import get_db
 from main import app
 from schemas.user import CreateUser
+from routers.auth import auth
 
-
-env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
-load_dotenv(env_path)
+load_dotenv()
 REDIRECT_URI = os.environ.get("REDIRECT_URI")
 
 client = TestClient(app)
@@ -43,8 +43,9 @@ def reset_mock_db(mock_db):
 @patch("routers.auth.save_user")
 @patch("routers.auth.user_info_with_token")
 @patch("routers.auth.auth_with_code", return_value=None)
-def test_unsuccessful_login_with_invalid_credentials(mock_auth_with_code, mock_user_info_with_token, mock_save_user,
-                                                     mock_db):
+def test_unsuccessful_login_with_invalid_credentials(
+    mock_auth_with_code, mock_user_info_with_token, mock_save_user, mock_db
+):
     response = client.post("/auth/sign-in?code=invalid_code")
 
     assert response.status_code == 401
@@ -56,9 +57,13 @@ def test_unsuccessful_login_with_invalid_credentials(mock_auth_with_code, mock_u
 
 @patch("routers.auth.save_user")
 @patch("routers.auth.user_info_with_token", return_value=user_attributes)
-@patch("routers.auth.auth_with_code", return_value={"token": "valid_token", "expires_in": 100})
-def test_successful_login_with_valid_credentials_found_username(mock_auth_with_code, mock_user_info_with_token,
-                                                                mock_save_user, mock_db):
+@patch(
+    "routers.auth.auth_with_code",
+    return_value={"token": "valid_token", "expires_in": 100},
+)
+def test_successful_login_with_valid_credentials_found_username(
+    mock_auth_with_code, mock_user_info_with_token, mock_save_user, mock_db
+):
     mock_db.query.return_value.filter.return_value.first.side_effect = [True, False]
 
     response = client.post("/auth/sign-in?code=valid_code")
@@ -73,9 +78,13 @@ def test_successful_login_with_valid_credentials_found_username(mock_auth_with_c
 
 @patch("routers.auth.save_user")
 @patch("routers.auth.user_info_with_token", return_value=user_attributes)
-@patch("routers.auth.auth_with_code", return_value={"token": "valid_token", "expires_in": 100})
-def test_successful_login_with_valid_credentials_found_email(mock_auth_with_code, mock_user_info_with_token,
-                                                             mock_save_user, mock_db):
+@patch(
+    "routers.auth.auth_with_code",
+    return_value={"token": "valid_token", "expires_in": 100},
+)
+def test_successful_login_with_valid_credentials_found_email(
+    mock_auth_with_code, mock_user_info_with_token, mock_save_user, mock_db
+):
     mock_db.query.return_value.filter.return_value.first.side_effect = [False, True]
 
     response = client.post("/auth/sign-in?code=valid_code")
@@ -90,9 +99,13 @@ def test_successful_login_with_valid_credentials_found_email(mock_auth_with_code
 
 @patch("routers.auth.save_user")
 @patch("routers.auth.user_info_with_token", return_value=user_attributes)
-@patch("routers.auth.auth_with_code", return_value={"token": "valid_token", "expires_in": 100})
-def test_successful_login_with_valid_credentials_new_user(mock_auth_with_code, mock_user_info_with_token,
-                                                          mock_save_user, mock_db):
+@patch(
+    "routers.auth.auth_with_code",
+    return_value={"token": "valid_token", "expires_in": 100},
+)
+def test_successful_login_with_valid_credentials_new_user(
+    mock_auth_with_code, mock_user_info_with_token, mock_save_user, mock_db
+):
     mock_db.query.return_value.filter.return_value.first.side_effect = [False, False]
 
     response = client.post("/auth/sign-in?code=valid_code")
@@ -102,12 +115,55 @@ def test_successful_login_with_valid_credentials_new_user(mock_auth_with_code, m
     mock_auth_with_code.assert_called_once_with("valid_code", REDIRECT_URI)
     mock_user_info_with_token.assert_called_once_with("valid_token")
     assert mock_db.query.call_count == 2
-    mock_save_user.assert_called_once_with(CreateUser(
-        id=user_attributes["UserAttributes"][4]["Value"],
-        given_name=user_attributes["UserAttributes"][3]["Value"],
-        family_name=user_attributes["UserAttributes"][2]["Value"],
-        username=user_attributes["Username"],
-        email=user_attributes["UserAttributes"][0]["Value"],
-    ), mock_db)
+    mock_save_user.assert_called_once_with(
+        CreateUser(
+            id=user_attributes["UserAttributes"][4]["Value"],
+            given_name=user_attributes["UserAttributes"][3]["Value"],
+            family_name=user_attributes["UserAttributes"][2]["Value"],
+            username=user_attributes["Username"],
+            email=user_attributes["UserAttributes"][0]["Value"],
+        ),
+        mock_db,
+    )
 
 
+@patch("routers.auth.logout_with_token", return_value=True)
+def test_successful_logout(mock_logout_with_token):
+    app.dependency_overrides[auth] = lambda: JWTAuthorizationCredentials(
+        jwt_token="token",
+        header={"kid": "some_kid"},
+        claims={"sub": "user_id"},
+        signature="signature",
+        message="message",
+    )
+
+    headers = {"Authorization": "Bearer token"}
+    response = client.get("/auth/logout", headers=headers)
+
+    assert response.status_code == 200
+    assert response.json() == "Logout successful"
+
+    mock_logout_with_token.assert_called_once_with("token")
+
+    app.dependency_overrides = {}
+
+
+@patch("routers.auth.logout_with_token", return_value=False)
+def test_unsuccessful_logout(mock_logout_with_token):
+    app.dependency_overrides[auth] = lambda: JWTAuthorizationCredentials(
+        jwt_token="token",
+        header={"kid": "some_kid"},
+        claims={"sub": "user_id"},
+        signature="signature",
+        message="message",
+    )
+
+    headers = {"Authorization": "Bearer token"}
+    response = client.get("/auth/logout", headers=headers)
+
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Error loging out..."}
+
+    mock_logout_with_token.assert_called_once_with("token")
+
+    app.dependency_overrides = {}
