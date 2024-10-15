@@ -4,7 +4,7 @@ import pytest
 import logging
 from unittest.mock import patch
 
-from auth.user_auth import auth_with_code, user_info_with_token
+from auth.user_auth import auth_with_code, user_info_with_token, logout_with_token
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ cognito_user_client_secret = "client_secret"
 cognito_token_endpoint = "http://token_endpoint"
 headers = {
     "Content-Type": "application/x-www-form-urlencoded",
-    "Authorization": f"Basic {base64.b64encode(f'{cognito_user_client_id}:{cognito_user_client_secret}'.encode()).decode()}"
+    "Authorization": f"Basic {base64.b64encode(f'{cognito_user_client_id}:{cognito_user_client_secret}'.encode()).decode()}",
 }
 
 
@@ -48,11 +48,18 @@ def test_unsuccessful_auth_with_code(requests_post_mock):
 
     result = auth_with_code("code", "redirect_uri")
 
-    requests_post_mock.assert_called_once_with(cognito_token_endpoint, data=payload, headers=headers)
+    requests_post_mock.assert_called_once_with(
+        cognito_token_endpoint, data=payload, headers=headers
+    )
     assert result is None
 
 
-@patch("auth.user_auth.requests.post", return_value=RequestsMockResponse({"access_token": "client_access_token", "expires_in": 200}, 200))
+@patch(
+    "auth.user_auth.requests.post",
+    return_value=RequestsMockResponse(
+        {"access_token": "client_access_token", "expires_in": 200}, 200
+    ),
+)
 def test_successful_auth_with_code(requests_post_mock):
     payload = {
         "grant_type": "authorization_code",
@@ -63,24 +70,61 @@ def test_successful_auth_with_code(requests_post_mock):
 
     result = auth_with_code("code", "redirect_uri")
 
-    requests_post_mock.assert_called_once_with(cognito_token_endpoint, data=payload, headers=headers)
+    requests_post_mock.assert_called_once_with(
+        cognito_token_endpoint, data=payload, headers=headers
+    )
     assert result == {"token": "client_access_token", "expires_in": 200}
 
 
-@patch("auth.user_auth.cognito_client.get_user", return_value={"ResponseMetadata": {"HTTPStatusCode": 200}})
+@patch(
+    "auth.user_auth.cognito_client.get_user",
+    return_value={"ResponseMetadata": {"HTTPStatusCode": 200}},
+)
 def test_user_info_with_token(mock_cognito_client_get_user_function):
     result = user_info_with_token("access_token")
 
-    mock_cognito_client_get_user_function.assert_called_once_with(AccessToken="access_token")
+    mock_cognito_client_get_user_function.assert_called_once_with(
+        AccessToken="access_token"
+    )
     assert result == {"ResponseMetadata": {"HTTPStatusCode": 200}}
 
 
 # 400 it's just a random error status code to test the error handling
-@patch("auth.user_auth.cognito_client.get_user", return_value={"ResponseMetadata": {"HTTPStatusCode": 400}})
+@patch(
+    "auth.user_auth.cognito_client.get_user",
+    return_value={"ResponseMetadata": {"HTTPStatusCode": 400}},
+)
 def test_unsuccessful_user_info_with_token(mock_cognito_client_get_user_function):
     result = user_info_with_token("access_token_2")
 
-    mock_cognito_client_get_user_function.assert_called_once_with(AccessToken="access_token_2")
+    mock_cognito_client_get_user_function.assert_called_once_with(
+        AccessToken="access_token_2"
+    )
     assert result is None
 
 
+@patch(
+    "auth.user_auth.cognito_client.global_sign_out",
+    return_value={"ResponseMetadata": {"HTTPStatusCode": 200}},
+)
+def test_logout_with_token(mock_cognito_client_global_sign_out_function):
+    result = logout_with_token("access_token")
+
+    mock_cognito_client_global_sign_out_function.assert_called_once_with(
+        AccessToken="access_token"
+    )
+    assert result == True
+
+
+# 400 it's just a random error status code to test the error handling
+@patch(
+    "auth.user_auth.cognito_client.global_sign_out",
+    return_value={"ResponseMetadata": {"HTTPStatusCode": 400}},
+)
+def test_unsuccessful_logout_with_token(mock_cognito_client_global_sign_out_function):
+    result = logout_with_token("access_token_2")
+
+    mock_cognito_client_global_sign_out_function.assert_called_once_with(
+        AccessToken="access_token_2"
+    )
+    assert result == False
