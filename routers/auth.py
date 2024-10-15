@@ -86,8 +86,8 @@ async def logout(credentials: JWTAuthorizationCredentials = Depends(auth)):
     :return: Message if logout is successful, otherwise raise an HTTPException.
     """
 
-    try:
-        logout_with_token(credentials.jwt_token)
+    result = logout_with_token(credentials.jwt_token)
+    if result:
         return JSONResponse(status_code=200, content="Logout successful")
-    except Exception as e:
+    else:
         raise HTTPException(status_code=401, detail="Error loging out...")
