@@ -1,4 +1,4 @@
-name: Test
+name: Sonar Pipeline
 on:
   workflow_dispatch:
   push:
