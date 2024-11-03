@@ -3,12 +3,10 @@ FROM python:3.12-slim
 
 # Instala dependências do sistema necessárias para compilar pacotes Python
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends gcc libffi-dev libssl-dev curl && \
+    apt-get install -y --no-install-recommends curl gcc libffi-dev libssl-dev && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Instala o Poetry
-RUN curl -sSL https://install.python-poetry.org | python3 - && \
+    rm -rf /var/lib/apt/lists/* && \
+    curl -sSL https://install.python-poetry.org | python3 - && \
     ln -s /root/.local/bin/poetry /usr/local/bin/poetry
 
 # Copia os arquivos do projeto para o container
