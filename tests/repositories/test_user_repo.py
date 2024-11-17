@@ -60,8 +60,7 @@ def create_test_db(session):
 def create_test_user(test_db):
     test_user = User(
         id="id1",
-        given_name="given_name1",
-        family_name="family_name1",
+        name="given_name1",
         username="username1",
         email="email1",
     )
@@ -107,8 +106,7 @@ def test_get_user_not_found(get_user_by_username_function, test_db):
 def test_create_user(save_user_function, test_db):
     user_data = CreateUser(
         id="id2",
-        given_name="given_name2",
-        family_name="family_name2",
+        name="given_name2",
         username="username2",
         email="email2",
     )
@@ -117,9 +115,8 @@ def test_create_user(save_user_function, test_db):
     assert user == test_db.query(User).filter(User.username == "username2").first()
     assert (
         user.id == "id2"
-        and user.given_name == "given_name2"
+        and user.name == "given_name2"
         and user.username == "username2"
-        and user.family_name == "family_name2"
         and user.email == "email2"
     )
     save_user_function.assert_called_once_with(new_user=user_data, db=test_db)

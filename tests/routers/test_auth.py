@@ -27,8 +27,7 @@ user_attributes = {
     "UserAttributes": [
         {"Name": "email", "Value": "email@email.com"},
         {"Name": "email_verified", "Value": "..."},
-        {"Name": "family_name", "Value": "family_name1"},
-        {"Name": "given_name", "Value": "given_name1"},
+        {"Name": "name", "Value": "given_name1"},
         {"Name": "sub", "Value": "id1"},
     ],
     "Username": "username1",
@@ -117,9 +116,8 @@ def test_successful_login_with_valid_credentials_new_user(
     assert mock_db.query.call_count == 2
     mock_save_user.assert_called_once_with(
         CreateUser(
-            id=user_attributes["UserAttributes"][4]["Value"],
-            given_name=user_attributes["UserAttributes"][3]["Value"],
-            family_name=user_attributes["UserAttributes"][2]["Value"],
+            id=user_attributes["UserAttributes"][3]["Value"],
+            name=user_attributes["UserAttributes"][2]["Value"],
             username=user_attributes["Username"],
             email=user_attributes["UserAttributes"][0]["Value"],
         ),

@@ -43,9 +43,8 @@ async def login(code: str, db: Session = Depends(get_db)):
         user_info = user_info_with_token(token.get("token"))
 
         new_user = CreateUser(
-            id=user_info["UserAttributes"][4]["Value"],
-            given_name=user_info["UserAttributes"][3]["Value"],
-            family_name=user_info["UserAttributes"][2]["Value"],
+            id=user_info["UserAttributes"][3]["Value"],
+            name=user_info["UserAttributes"][2]["Value"],
             username=user_info["Username"],
             email=user_info["UserAttributes"][0]["Value"],
         )
