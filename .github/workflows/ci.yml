@@ -56,17 +56,6 @@ jobs:
       - name: Delete .env file
         run: rm .env
 
-      - name: Create .env.prod file
-        run: |
-          echo "MYSQL_URL=${{ secrets.MYSQL_URL_PROD }}" >> .env.prod
-          echo "REDIRECT_URI=${{ secrets.REDIRECT_URI_PROD }}" >> .env.prod
-          echo "AWS_REGION=${{ secrets.AWS_REGION_PROD }}" >> .env.prod
-          echo "USER_POOL_ID=${{ secrets.USER_POOL_ID_PROD }}" >> .env.prod
-          echo "COGNITO_USER_CLIENT_ID=${{ secrets.COGNITO_USER_CLIENT_ID_PROD }}" >> .env.prod
-          echo "COGNITO_USER_CLIENT_SECRET=${{ secrets.COGNITO_USER_CLIENT_SECRET_PROD }}" >> .env.prod
-          echo "COGNITO_TOKEN_ENDPOINT=${{ secrets.COGNITO_TOKEN_ENDPOINT_PROD }}" >> .env.prod
-        shell: bash
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:

@@ -22,7 +22,7 @@ EXPOSE 8000
 
 # Define variáveis de ambiente
 ENV PYTHONUNBUFFERED=1 \
-    ENV_FILE_PATH=./.env.prod
+    ENV_FILE_PATH=../.env.prod
 
 # Comando para iniciar a aplicação com Uvicorn
 CMD ["poetry", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
