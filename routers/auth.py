@@ -70,14 +70,11 @@ async def current_user(
     :param db: Database session.
     :return: User object if found, otherwise raise an HTTPException
     """
-    print(credentials)
-    admin = "admin" in credentials["groups"]
-    user = get_user(username=credentials["username"], db=db)
-    user_dict = user.__dict__
-    user_dict["admin"] = admin
+    user = get_user(username=credentials["username"], db=db).__dict__
+    user["admin"] = "admin" in credentials["groups"]
     return JSONResponse(
         status_code=200,
-        content=jsonable_encoder(user_dict),
+        content=jsonable_encoder(user),
     )
 
 
