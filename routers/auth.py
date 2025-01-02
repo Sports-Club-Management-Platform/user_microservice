@@ -61,7 +61,7 @@ async def login(code: str, db: Session = Depends(get_db)):
 
 @router.get("/auth/me", dependencies=[Depends(auth)])
 async def current_user(
-    username: str = Depends(get_current_user), db: Session = Depends(get_db)
+    credentials: dict = Depends(get_current_user), db: Session = Depends(get_db)
 ):
     """
     Function that returns the current user.
@@ -70,9 +70,14 @@ async def current_user(
     :param db: Database session.
     :return: User object if found, otherwise raise an HTTPException
     """
+    print(credentials)
+    admin = "admin" in credentials["groups"]
+    user = get_user(username=credentials["username"], db=db)
+    user_dict = user.__dict__
+    user_dict["admin"] = admin
     return JSONResponse(
         status_code=200,
-        content=jsonable_encoder(get_user(username=username, db=db)),
+        content=jsonable_encoder(user_dict),
     )
 
 

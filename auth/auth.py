@@ -22,7 +22,7 @@ auth = JWTBearer(jwks)
 
 async def get_current_user(
     credentials: JWTAuthorizationCredentials = Depends(auth),
-) -> str:
+) -> dict:
     """
     Get the current user from the JWT token.
 
@@ -31,6 +31,8 @@ async def get_current_user(
     """
 
     try:
-        return credentials.claims["username"]
+        username = credentials.claims["username"]
+        groups = credentials.claims.get("cognito:groups", [])
+        return {"username": username, "groups": groups}
     except KeyError:
         HTTPException(status_code=HTTP_403_FORBIDDEN, detail="Username missing")
